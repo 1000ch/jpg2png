@@ -2,13 +2,11 @@ package main
 
 import (
 	"flag"
-	"image/jpeg"
-	"image/png"
-	"io"
 	"io/ioutil"
-	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/1000ch/jpg2png/jpg2png"
 )
 
 func walkDir(arg string) []string {
@@ -42,31 +40,6 @@ func distinct(args []string) []string {
 	return fileList
 }
 
-func jpg2png(reader io.Reader, writer io.Writer) error {
-	image, error := jpeg.Decode(reader)
-	if error != nil {
-		return error
-	}
-
-	return png.Encode(writer, image)
-}
-
-func convert(arg string) error {
-	reader, error := os.Open(arg)
-	if error != nil {
-		return error
-	}
-	defer reader.Close()
-
-	writer, error := os.Create(strings.Replace(arg, ".jpg", ".png", 1))
-	if error != nil {
-		return error
-	}
-	defer writer.Close()
-
-	return jpg2png(reader, writer)
-}
-
 func main() {
 	flag.Parse()
 
@@ -77,7 +50,7 @@ func main() {
 
 	for _, file := range distinct(fileList) {
 		if strings.HasSuffix(file, ".jpg") {
-			convert(file)
+			jpg2png.Convert(file)
 		}
 	}
 }
