@@ -4,6 +4,7 @@ import (
 	"flag"
 	"image/jpeg"
 	"image/png"
+	"io"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -41,25 +42,29 @@ func distinct(args []string) []string {
 	return fileList
 }
 
-func jpg2png(arg string) error {
-	src, error := os.Open(arg)
-	if error != nil {
-		return error
-	}
-	defer src.Close()
-
-	dest, error := os.Create(strings.Replace(arg, ".jpg", ".png", 1))
-	if error != nil {
-		return error
-	}
-	defer dest.Close()
-
-	image, error := jpeg.Decode(src)
+func jpg2png(reader io.Reader, writer io.Writer) error {
+	image, error := jpeg.Decode(reader)
 	if error != nil {
 		return error
 	}
 
-	return png.Encode(dest, image)
+	return png.Encode(writer, image)
+}
+
+func convert(arg string) error {
+	reader, error := os.Open(arg)
+	if error != nil {
+		return error
+	}
+	defer reader.Close()
+
+	writer, error := os.Create(strings.Replace(arg, ".jpg", ".png", 1))
+	if error != nil {
+		return error
+	}
+	defer writer.Close()
+
+	return jpg2png(reader, writer)
 }
 
 func main() {
@@ -72,7 +77,7 @@ func main() {
 
 	for _, file := range distinct(fileList) {
 		if strings.HasSuffix(file, ".jpg") {
-			jpg2png(file)
+			convert(file)
 		}
 	}
 }
