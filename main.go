@@ -2,8 +2,10 @@ package main
 
 import (
 	"flag"
-	"fmt"
+	"image/jpeg"
+	"image/png"
 	"io/ioutil"
+	"os"
 	"path/filepath"
 	"strings"
 )
@@ -39,6 +41,27 @@ func distinct(args []string) []string {
 	return fileList
 }
 
+func jpg2png(arg string) error {
+	src, error := os.Open(arg)
+	if error != nil {
+		return error
+	}
+	defer src.Close()
+
+	dest, error := os.Create(strings.Replace(arg, ".jpg", ".png", 1))
+	if error != nil {
+		return error
+	}
+	defer dest.Close()
+
+	image, error := jpeg.Decode(src)
+	if error != nil {
+		return error
+	}
+
+	return png.Encode(dest, image)
+}
+
 func main() {
 	flag.Parse()
 
@@ -49,7 +72,7 @@ func main() {
 
 	for _, file := range distinct(fileList) {
 		if strings.HasSuffix(file, ".jpg") {
-			fmt.Println(file)
+			jpg2png(file)
 		}
 	}
 }
