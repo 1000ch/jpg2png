@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"path/filepath"
 	"strings"
+	"sync"
 
 	"github.com/1000ch/jpg2png/jpg2png"
 )
@@ -48,9 +49,15 @@ func main() {
 		fileList = append(fileList, walkDir(arg)...)
 	}
 
+	wg := &sync.WaitGroup{}
 	for _, file := range distinct(fileList) {
 		if strings.HasSuffix(file, ".jpg") {
-			jpg2png.Convert(file)
+			wg.Add(1)
+			go func(file string) {
+				jpg2png.Convert(file)
+				wg.Done()
+			}(file)
 		}
 	}
+	wg.Wait()
 }
