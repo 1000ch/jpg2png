@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"io/ioutil"
+	"strings"
 )
 
 func walkDir(arg string) []string {
@@ -31,6 +32,8 @@ func main() {
 	}
 
 	for _, file := range fileList {
-		fmt.Println(file)
+		if strings.HasSuffix(file, ".jpg") {
+			fmt.Println(file)
+		}
 	}
 }
