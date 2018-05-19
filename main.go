@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"io/ioutil"
+	"path/filepath"
 	"strings"
 )
 
@@ -12,7 +13,8 @@ func walkDir(arg string) []string {
 
 	pathList, _ := ioutil.ReadDir(arg)
 	for _, path := range pathList {
-		name := path.Name()
+		name := filepath.Join(arg, path.Name())
+
 		if path.IsDir() {
 			fileList = append(fileList, walkDir(name)...)
 		} else {
